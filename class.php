@@ -5,7 +5,7 @@
         public const TIPO_DOCUMENTO = "TD01";
         public const VALUTA = "EUR";
 
-        public const VERSIONE = 'FPA12';
+        public const VERSIONE = 'FPA12'; # Fattura privati: FPR12 - Fattura aziende: FPA12
         public const XMLNS_DS = 'http://www.w3.org/2000/09/xmldsig#';
         public const XMLNS_P = 'http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2';
         public const XMLNS_XSI = 'http://www.w3.org/2001/XMLSchema-instance';
@@ -13,7 +13,7 @@
 
         public const ID_PAESE = "IT";
         public const PROGRESSIVO_INVIO = 1;
-        public const CODICE_DESTINATARIO = "0000000";
+        public const CODICE_DESTINATARIO = "000000";
 
         public $default;
         public $file;
@@ -23,8 +23,8 @@
         public function __construct($TipoDocumento = self::TIPO_DOCUMENTO, $Valuta = self::VALUTA){
 
             $this->file = [];
-            $this->file['p:FatturaElettronica'] = [];
-            $this->file['p:FatturaElettronica']['attributes'] = [
+            $this->file['FatturaElettronica'] = [];
+            $this->file['FatturaElettronica']['attributes'] = [
                 "versione" => self::VERSIONE,
                 "xmlns:ds" => self::XMLNS_DS,
                 "xmlns:p" => self::XMLNS_P,
@@ -32,13 +32,14 @@
                 "xsi:schemaLocation"=> self::XSI_SCHEMA
             ];
 
-            $this->file['p:FatturaElettronica']['child'] = [];
+            $this->file['FatturaElettronica']['child'] = [];
             
             $this->header = [];
             $this->body = [];
 
             $this->default['TipoDocumento'] = $TipoDocumento;
             $this->default['Divisa'] = $Valuta;
+            $this->default['Data'] = date("Y-m-d");
             
             $this->default['IdPaese'] = self::ID_PAESE;
             $this->default['FormatoTrasmissione'] = self::VERSIONE;
@@ -85,7 +86,7 @@
                 
                 $Indirizzo = [];
 
-                $Indirizzo['Via'] = $Via;
+                $Indirizzo['Indirizzo'] = $Via;
                 $Indirizzo['NumeroCivico'] = $NumeroCivico;
                 $Indirizzo['CAP'] = $CAP;
                 $Indirizzo['Comune'] = $Comune;
@@ -132,42 +133,66 @@
                 
                 return $Albo;
 
-            }
-
-            public function Anagrafica($Denominazione, $Nome, $Cognome, $Titolo = '', $CodEORI = '') {
+            } 
+            
+            public function AnagraficaAzienda($Denominazione, $CodEORI = null) {
                 
                 $Anagrafica = [];
                 $Anagrafica['Denominazione'] = $Denominazione;
-                $Anagrafica['Nome'] = $Nome;
-                $Anagrafica['Cognome'] = $Cognome;
 
-                if (!empty($Titolo)) { $Anagrafica['Titolo'] = $Titolo; }
-                if (!empty($CodEORI)) { $Anagrafica['CodEORI'] = $CodEORI; }
+                if ($CodEORI != null) { $Anagrafica['CodEORI'] = $CodEORI; }
+
                 
                 return $Anagrafica;
 
             }
 
-            public function IdFiscaleIVA($IdCodice) {
+            public function AnagraficaPrivato($Nome, $Cognome, $Titolo = null, $CodEORI = null) {
+                
+                $Anagrafica = [];
 
-                $IdFiscaleIVA = [];
+                if ($CodEORI != null) { $Anagrafica['CodEORI'] = $CodEORI; }
 
-                $IdFiscaleIVA['IdPaese'] = $this->default['IdPaese'];
-                $IdFiscaleIVA['IdCodice'] = $IdCodice;
+                $Anagrafica['Nome'] = $Nome;
+                $Anagrafica['Cognome'] = $Cognome;
+
+                if ($Titolo != null) { $Anagrafica['Titolo'] = $Titolo; }
+                
+                return $Anagrafica;
+
+            }
+            
+            public function IdTrasmittente($IdCodice, $IdPaese = null) {
+
+                $IdTrasmittente = [];
+
+                $IdTrasmittente['IdPaese'] = $IdPaese == null ? $this->default['IdPaese'] : $IdPaese;
+                $IdTrasmittente['IdCodice'] = $IdCodice;
+                
+                return $IdTrasmittente;
+                
+            }
+
+            public function IdFiscaleIVA($IdCodice, $IdPaese = null) {
+
+                $IdFiscaleIVA['IdFiscaleIVA'] = [];
+                $IdFiscaleIVA['IdFiscaleIVA']['IdPaese'] = $IdPaese == null ? $this->default['IdPaese'] : $IdPaese;
+                $IdFiscaleIVA['IdFiscaleIVA']['IdCodice'] = $IdCodice;
                 
                 return $IdFiscaleIVA;
                 
             }
 
-            public function  DatiAnagrafici($IdFiscaleIVA, $Anagrafica, $CodiceFiscale, $Albo = []) {
+            public function DatiAnagrafici($DatiFiscali, $Anagrafica, $RegimeFiscale, $CodiceFiscale = null, $Albo = []) {
 
                 $DatiAnagrafici = [];
                 
-                $DatiAnagrafici['IdFiscaleIVA'] = $IdFiscaleIVA;
-                $DatiAnagrafici['CodiceFiscale'] = $CodiceFiscale;
+                $DatiAnagrafici = array_merge($DatiAnagrafici, $DatiFiscali);
+                if (!empty($CodiceFiscale)) { $DatiAnagrafici['CodiceFiscale'] = $CodiceFiscale; }
                 $DatiAnagrafici['Anagrafica'] = $Anagrafica;
 
                 if (!empty($Albo)) { $DatiAnagrafici = array_merge($DatiAnagrafici, $Albo); }
+                if ($RegimeFiscale != null) { $DatiAnagrafici['RegimeFiscale'] = $RegimeFiscale; }
 
                 return $DatiAnagrafici;
 
@@ -176,11 +201,11 @@
             public function DatiTrasmissione($IdCodice, $CodiceDestinatario, $PECDestinatario = '', $Telefono = '', $Email = '') {
 
                 $DatiTrasmissione = [];
-                $DatiTrasmissione['IdTrasmittente'] = $this->IdFiscaleIVA($IdCodice);
+                $DatiTrasmissione['IdTrasmittente'] = $this->IdTrasmittente($IdCodice);
                 $DatiTrasmissione['ProgressivoInvio'] = $this->default['ProgressivoInvio'];
                 $DatiTrasmissione['FormatoTrasmissione'] = $this->default['FormatoTrasmissione'];
 
-                $DatiTrasmissione['CodiceDestinatario'] =  empty($CodiceDestinatario) ? $CodiceDestinatario : $this->default['CodiceDestinatario'];
+                $DatiTrasmissione['CodiceDestinatario'] =  empty($CodiceDestinatario) ? $this->default['CodiceDestinatario'] : $CodiceDestinatario;
                 
                 if (!empty($PECDestinatario)) { $DatiTrasmissione['PECDestinatario'] = $PECDestinatario; }
 
@@ -218,18 +243,18 @@
                 $RappresentanteFiscale = [];
                 $RappresentanteFiscale['DatiAnagrafici'] = $DatiAnagrafici;
 
-                $this->header['RappresentanteFiscale'] = $RappresentanteFiscale;
+                return $RappresentanteFiscale;
 
             }
 
-            public function CessionarioCommittente($DatiAnagrafici, $SedeLegale, $RappresentanteFiscale, $StabileOrganizzazione = '') {
+            public function CessionarioCommittente($DatiAnagrafici, $SedeLegale, $RappresentanteFiscale = '', $StabileOrganizzazione = '') {
 
                 $CessionarioCommittente = [];
                 $CessionarioCommittente['DatiAnagrafici'] = $DatiAnagrafici;
                 $CessionarioCommittente['Sede'] = $SedeLegale;
-                $CessionarioCommittente['RappresentanteFiscale'] = $RappresentanteFiscale;
 
                 if (!empty($StabileOrganizzazione)) { $CessionarioCommittente['StabileOrganizzazione'] = $StabileOrganizzazione; }
+                if (!empty($RappresentanteFiscale)) { $CessionarioCommittente['RappresentanteFiscale'] =$RappresentanteFiscale; }
 
                 $this->header['CessionarioCommittente'] = $CessionarioCommittente;
 
@@ -247,16 +272,36 @@
         // 
 
         // FATTURAELETTRONICABADY
-            public function DatiGeneraliDocumento() {
-                
+            public function DatiGenerali($DatiGeneraliDocumento) {
+
+                $this->body['DatiGenerali'] = [];
+                $this->body['DatiGenerali']['DatiGeneraliDocumento'] = $DatiGeneraliDocumento;
+
             }
+
+            public function DatiGeneraliDocumento() {
+
+                $DatiGeneraliDocumento = [];
+                $DatiGeneraliDocumento['TipoDocumento'] = $this->default['TipoDocumento'];
+                $DatiGeneraliDocumento['Divisa'] = $this->default['Divisa'];
+
+                $DatiGeneraliDocumento['Data'] = $this->default['Data'];
+
+                $DatiGeneraliDocumento['Numero'] = $this->default['ProgressivoInvio'];
+
+                
+                return $DatiGeneraliDocumento;
+
+            }
+
         // 
 
         public function export($type = 'array', $action = false) {
 
             # $action = print | inline | download
 
-            $this->file['p:FatturaElettronica']['child']['FatturaElettronicaHeader'] = $this->header;
+            $this->file['FatturaElettronica']['child']['FatturaElettronicaHeader'] = $this->header;
+            $this->file['FatturaElettronica']['child']['FatturaElettronicaBody'] = $this->body;
 
             if ($type == 'array') {
 
@@ -288,92 +333,5 @@
         }
 
     }
-
-
-
-    $ProgressivoInvio = code(10, 'numbers');
-
-    // Compilare secondo le specifiche di questa guida:
-    // https://www.fatturapa.gov.it/export/documenti/Specifiche_tecniche_del_formato_FatturaPA_V1.3.2.pdf
-    
-    $FatturaElettronica = [
-        "p:FatturaElettronica" => [
-            "attributes" => [
-                "versione" => "FPA12",
-                "xmlns:ds" => "http://www.w3.org/2000/09/xmldsig#",
-                "xmlns:p" => "http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2",
-                "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
-                "xsi:schemaLocation"=> "http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2 http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_file_xml_FatturaPA_versione_1.2.xsd"
-            ],
-            "child" => [
-                "FatturaElettronicaHeader" => [
-                    "DatiTrasmissione" => [
-                        "IdTrasmittente" => [
-                            "IdPaese" => "IT",
-                            "IdCodice" => $SOCIETY->pi
-                        ],
-                        "ProgressivoInvio" => $ProgressivoInvio,
-                        "FormatoTrasmissione" => "FPA12",
-                        "CodiceDestinatario" => "AAAAAA",
-                        "ContattiTrasmittente" => [
-                            "Telefono" => "",
-                            "Email" => ""
-                        ],
-                        "PECDestinatario" => ""
-                    ],
-                    "CedentePrestatore" => [
-                        "DatiAnagrafici" => [
-                            "IdFiscaleIVA" => [
-                                "IdPaese" => "",
-                                "IdCodice" => ""
-                            ],
-                            "CodiceFiscale" => "",
-                            "Anagrafica" => [
-                                "Denominazione" => "",
-                                "Nome" => "",
-                                "Cognome" => "",
-                                "Titolo" => "",
-                                "CodEORI" => "",
-                                "AlboProfessionale" => "",
-                                "ProvinciaAlbo" => "",
-                                "NumeroIscrizioneAlbo" => "",
-                                "DataIscrizioneAlbo" => "",
-                                "RegimeFiscale" => ""
-                            ],
-                            "Sede" => [
-                                "Indirizzo" => "",
-                                "NumeroCivico" => "",
-                                "CAP" => "",
-                                "Comune" => "",
-                                "Provincia" => "",
-                                "Nazione" => ""
-                            ],
-                            "StabileOrganizzazione" => [
-                                "Indirizzo" => "",
-                                "NumeroCivico" => "",
-                                "CAP" => "",
-                                "Comune" => "",
-                                "Provincia" => "",
-                                "Nazione" => ""
-                            ],
-                            "IscrizioneREA" => [
-                                "Ufficio" => "",
-                                "NumeroREA" => "",
-                                "CapitaleSociale" => "",
-                                "SocioUnico" => "",
-                                "StatoLiquidazione" => ""
-                            ],
-                            "Contatti" => [
-                                "Telefono" => "",
-                                "Fax" => "",
-                                "Email" => ""
-                            ],
-                            "RiferimentoAmministrazione" => ""
-                        ]
-                    ]
-                ]
-            ]
-        ]
-    ];
 
 ?>
