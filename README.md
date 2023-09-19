@@ -59,6 +59,7 @@
 
 ## NATURA PRODOTTI
 | Codice | Natura |
+| :---: | :--- |
 | `N1` | Escluse ex art.15 |
 | `N2` | Non soggette (non più valido dal 1 Gen 2021) |
 | `N2.1` | Non soggette ad IVA ai sensi degli artt. da 7 a 7-septies del DPR 633/72 |
