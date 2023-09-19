@@ -85,6 +85,14 @@
 | `N6.9` | Inversione contabile - altri casi |
 | `N7` | IVA assolta in altro stato UE (prestazione di servizi di telecomunicazioni, tele-radiodiffusione ed elettronici ex art. 7-octies, comma 1 lett. a, b, art. 74-sexies DPR 633/72) |
 
+
+## ESIGIBILITA IVA
+| Codice | Esigibilità |
+| :---: | :--- |
+| `I` | Iva ad esigibilità immediata |
+| `D` | Iva ad esigibilità differita |
+| `S` | Scissione dei pagamenti |
+
 ## LICENZA
 
 [MIT](https://github.com/wonder-image/fatturazione-elettronica/blob/main/LICENSE)
