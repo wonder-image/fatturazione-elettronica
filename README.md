@@ -6,11 +6,13 @@
 - [Specifiche compilazione](https://www.fatturapa.gov.it/export/documenti/Specifiche_tecniche_del_formato_FatturaPA_V1.3.2.pdf)
 - [Verificare fattura](https://www.fatturacheck.it/)
 
+
 ## FORMATO TRASMISSIONE
 | Codice | Fatture Verso |
 | :---: | :--- |
 | `FPR12` | Privati |
 | `FPA12` | Pubblia Amministrazione |
+
 
 ## TIPOLOGIA DOCUMENTO
 | Codice | Documento |
@@ -35,6 +37,7 @@
 | `TD27` | Fattura per autoconsumo o per cessioni gratuite senza rivalsa |
 | `TD28` | Acquisti da San Marino con IVA (fattura cartacea) |
 
+
 ## REGIME FISCALE
 | Codice | Regime Fiscale |
 | :---: | :--- |
@@ -56,6 +59,7 @@
 | `RF17` | IVA per cassa (art. 32-bis, D.L. 83/2012) |
 | `RF18` | Altro |
 | `RF19` | Forfettario (art.1, c. 54-89, L. 190/2014) |
+
 
 ## NATURA PRODOTTI
 | Codice | Natura |
@@ -92,6 +96,42 @@
 | `I` | Iva ad esigibilità immediata |
 | `D` | Iva ad esigibilità differita |
 | `S` | Scissione dei pagamenti |
+
+
+## CONDIZIONI PAGAMENTO
+| Codice | Pagamento |
+| :---: | :--- |
+| `TP01` | Pagamento a rate |
+| `TP02` | Pagamento completo |
+| `TP03` | Anticipo |
+
+
+## MODALITÀ PAGAMENTO
+| Codice | Pagamento |
+| :---: | :--- |
+| `MP01` | Contanti |
+| `MP02` | Assegno |
+| `MP03` | Assegno circolare |
+| `MP04` | Contanti presso Tesoriera |
+| `MP05` | Bonifico |
+| `MP06` | Valigia cambiario |
+| `MP07` | Bollettino cambiario |
+| `MP08` | Carta di Pagamento |
+| `MP09` | RID |
+| `MP10` | RID utenze |
+| `MP11` | RID veloce |
+| `MP12` | Riba |
+| `MP13` | MAV |
+| `MP14` | Quietanza erario stato |
+| `MP15` | Giroconto su conti di contabilità speciale |
+| `MP16` | Domiciliazione bancaria |
+| `MP17` | Domiciliazione postale |
+| `MP18` | Bollettino di c/c postale |
+| `MP19` | SEPA Direct Debit |
+| `MP20` | SEPA Direct Debit CORE |
+| `MP21` | SEPA Direct Debit B2B |
+| `MP22` | Trattenuta su somme già riscosse |
+| `MP23` | PagoPA |
 
 ## LICENZA
 
