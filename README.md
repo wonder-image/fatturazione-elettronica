@@ -1,5 +1,6 @@
 # FATTURAZIONE ELETTRONICA
 
+Classe per la creazione di fatture elettroniche in XML.
 
 ## LINK UTILI
 
