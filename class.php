@@ -556,7 +556,6 @@
 
                     $DatiRiepilogo = $this->body['DatiBeniServizi']['DatiRiepilogo']['child'][$key];
 
-                    $DatiRiepilogo['AliquotaIVA'] = number_format($DatiRiepilogo['AliquotaIVA'] + $AliquotaIVA, 2, '.', '');
                     $DatiRiepilogo['ImponibileImporto'] = number_format($DatiRiepilogo['ImponibileImporto'] + $ImponibileImporto, 2, '.', '');
 
                     $DatiRiepilogo['Imposta'] = number_format($DatiRiepilogo['ImponibileImporto'] * ($AliquotaIVA / 100), 2, '.', '');
