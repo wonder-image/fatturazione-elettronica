@@ -718,7 +718,7 @@
 
                 } else {
 
-                    $ImponibileImporto = $Linea['PrezzoTotale'];
+                    $ImponibileImporto = $PrezzoTotale;
 
                 }
 
