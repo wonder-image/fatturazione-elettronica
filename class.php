@@ -572,9 +572,9 @@
                     if ($AliquotaIVA == 0) { $DatiRiepilogo['Natura'] = $Natura; }
 
                     $DatiRiepilogo['ImponibileImporto'] = $ImponibileImporto;
-    
+
                     $DatiRiepilogo['Imposta'] = number_format($ImponibileImporto * ($AliquotaIVA / 100), 2, '.', '');
-    
+
                     if ($AliquotaIVA == 0) {
                         $DatiRiepilogo['RiferimentoNormativo'] = $this->Natura($Natura);
                     } else {
@@ -702,11 +702,11 @@
                     
                     if (isset($ScontoMaggiorazione['Importo'])) {
 
-                        $ImportoSconto = number_format($ScontoMaggiorazione['Importo'], 2, '.', '');
+                        $ImportoSconto = number_format($ScontoMaggiorazione['Importo'] * $Quantita, 2, '.', '');
 
                     } else if (isset($ScontoMaggiorazione['Percentuale'])) {
 
-                        $ImportoSconto = number_format(($PrezzoTotale * ($ScontoMaggiorazione['Percentuale'] / 100)), 2, '.', '');
+                        $ImportoSconto = number_format(($PrezzoTotale * ($ScontoMaggiorazione['Percentuale'] / 100)) * $Quantita, 2, '.', '');
                         $ImponibileImporto = number_format($PrezzoTotale - $ImportoSconto, 2, '.', '');
                         
                     }
