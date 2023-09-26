@@ -11,7 +11,6 @@
         public const FORMATO_TRASMISSIONE = 'FPR12';
         public const TIPO_DOCUMENTO = "TD01";
         public const CONDIZIONI_PAGAMENTO = "TP02";
-        public const MODALITA_PAGAMENTO = "MP05";
 
         public const VALUTA = "EUR";
         public const ESIGIBILITA_IVA = 'D';
@@ -43,7 +42,6 @@
             $this->default['FormatoTrasmissione'] = self::FORMATO_TRASMISSIONE;
             $this->default['EsigibilitaIVA'] = self::ESIGIBILITA_IVA;
             $this->default['CondizioniPagamento'] = self::CONDIZIONI_PAGAMENTO;
-            $this->default['ModalitaPagamento'] = self::MODALITA_PAGAMENTO;
 
             $this->default['ProgressivoInvio'] = $ProgressivoInvio;
             $this->default['CodiceDestinatario'] = self::CODICE_DESTINATARIO;
@@ -97,41 +95,6 @@
 
                 $this->default['CondizioniPagamento'] = strtoupper($CondizioniPagamento); 
                 $this->DatiGenerali();
-
-            }
-
-            public function ModalitaPagamento($ModalitaPagamento = self::MODALITA_PAGAMENTO) { 
-
-                $this->default['ModalitaPagamento'] = strtoupper($ModalitaPagamento); 
-                $this->Totale();
-
-            }
-
-            public function DataScadenzaPagamento($DataScadenzaPagamento) { 
-
-                $this->default['DataScadenzaPagamento'] = $DataScadenzaPagamento; 
-                $this->Totale();
-
-            }
-
-            public function Beneficiario($Beneficiario) { 
-
-                $this->default['Beneficiario'] = $Beneficiario; 
-                $this->Totale();
-
-            }
-
-            public function IstitutoFinanziario($IstitutoFinanziario) { 
-
-                $this->default['IstitutoFinanziario'] = $IstitutoFinanziario; 
-                $this->Totale();
-
-            }
-
-            public function IBAN($IBAN) { 
-
-                $this->default['IBAN'] = $IBAN; 
-                $this->Totale();
 
             }
 
@@ -278,9 +241,9 @@
                 
                 $Contatti = [];
                 
-                if (!empty($Telefono)) { $Contatti['Telefono'] = $Telefono; }
-                if (!empty($Fax)) { $Contatti['Fax'] = $Fax; }
-                if (!empty($Email)) { $Contatti['Email'] = $Email; }
+                if (!empty($Telefono)) { $Contatti['Telefono'] = str_replace(' ', '', $Telefono); }
+                if (!empty($Fax)) { $Contatti['Fax'] = str_replace(' ', '', $Fax); }
+                if (!empty($Email)) { $Contatti['Email'] = str_replace(' ', '', $Email); }
                 
                 return $Contatti;
 
@@ -305,8 +268,8 @@
                 $Indirizzo['NumeroCivico'] = $NumeroCivico;
                 $Indirizzo['CAP'] = $CAP;
                 $Indirizzo['Comune'] = $Comune;
-                $Indirizzo['Provincia'] = $Provincia;
-                $Indirizzo['Nazione'] = $Nazione;
+                $Indirizzo['Provincia'] = strtoupper($Provincia);
+                $Indirizzo['Nazione'] = strtoupper($Nazione);
                 
                 return $Indirizzo;
 
@@ -420,7 +383,7 @@
                 $DatiTrasmissione['ProgressivoInvio'] = $this->default['ProgressivoInvio'];
                 $DatiTrasmissione['FormatoTrasmissione'] = $this->default['FormatoTrasmissione'];
 
-                if (!empty($CodiceDestinatario) || empty($PECDestinatario)) { $DatiTrasmissione['CodiceDestinatario'] = empty($CodiceDestinatario) ? $this->default['CodiceDestinatario'] : $CodiceDestinatario; }
+                $DatiTrasmissione['CodiceDestinatario'] = empty($CodiceDestinatario) ? $this->default['CodiceDestinatario'] : $CodiceDestinatario;
                 
                 if (!empty($PECDestinatario)) { $DatiTrasmissione['PECDestinatario'] = $PECDestinatario; }
 
@@ -509,7 +472,10 @@
 
                 $this->body['DatiPagamento'] = [];
                 $this->body['DatiPagamento']['CondizioniPagamento'] = $this->default['CondizioniPagamento'];
+
                 $this->body['DatiPagamento']['DettaglioPagamento'] = [];
+                $this->body['DatiPagamento']['DettaglioPagamento']['array'] = true;
+                $this->body['DatiPagamento']['DettaglioPagamento']['child'] = [];
 
 
             }
@@ -556,7 +522,7 @@
 
                     $DatiRiepilogo = $this->body['DatiBeniServizi']['DatiRiepilogo']['child'][$key];
 
-                    $DatiRiepilogo['ImponibileImporto'] = number_format($DatiRiepilogo['ImponibileImporto'] + $ImponibileImporto, 2, '.', '');
+                    $DatiRiepilogo['ImponibileImporto'] = $DatiRiepilogo['ImponibileImporto'] + $ImponibileImporto;
 
                     $DatiRiepilogo['Imposta'] = number_format($DatiRiepilogo['ImponibileImporto'] * ($AliquotaIVA / 100), 2, '.', '');
 
@@ -675,11 +641,17 @@
 
             public function Arrotondamento($Importo) {
 
-                $this->default['Arrotondamento'] = number_format($Importo, 2, '.', '');
+                $this->default['Arrotondamento'] = number_format($Importo, 3, '.', '');
 
                 $this->body['DatiGenerali']['DatiGeneraliDocumento']['Arrotondamento'] = $Importo;
 
                 $this->Totale();
+
+            }
+
+            public function Causale($Causale) {
+
+                $this->body['DatiGenerali']['DatiGeneraliDocumento']['Causale'] = $Causale;
 
             }
 
@@ -691,9 +663,9 @@
                 $Linea['Descrizione'] = $Descrizione;
 
                 $Linea['Quantita'] = number_format($Quantita, 2, '.', '');
-                $Linea['PrezzoUnitario'] = number_format($PrezzoUnitario, 2, '.', '');
+                $Linea['PrezzoUnitario'] = number_format($PrezzoUnitario, 3, '.', '');
 
-                $PrezzoTotale = number_format($PrezzoUnitario * $Quantita, 2, '.', '');
+                $PrezzoTotale = number_format($PrezzoUnitario * $Quantita, 3, '.', '');
 
                 if (!empty($ScontoMaggiorazione)) { 
 
@@ -701,19 +673,19 @@
                     
                     if (isset($ScontoMaggiorazione['Importo'])) {
 
-                        $ImportoSconto = number_format($ScontoMaggiorazione['Importo'] * $Quantita, 2, '.', '');
+                        $ImportoSconto = number_format($ScontoMaggiorazione['Importo'] * $Quantita, 3, '.', '');
 
                     } else if (isset($ScontoMaggiorazione['Percentuale'])) {
 
-                        $ImportoSconto = number_format(($PrezzoTotale * ($ScontoMaggiorazione['Percentuale'] / 100)) * $Quantita, 2, '.', '');
-                        $ImponibileImporto = number_format($PrezzoTotale - $ImportoSconto, 2, '.', '');
+                        $ImportoSconto = number_format(($PrezzoTotale * ($ScontoMaggiorazione['Percentuale'] / 100)) * $Quantita, 3, '.', '');
+                        $ImponibileImporto = number_format($PrezzoTotale - $ImportoSconto, 3, '.', '');
                         
                     }
 
                     if ($ScontoMaggiorazione['Tipo'] == "SC") {
-                        $ImponibileImporto = number_format($PrezzoTotale - $ImportoSconto, 2, '.', '');
+                        $ImponibileImporto = number_format($PrezzoTotale - $ImportoSconto, 3, '.', '');
                     } else if ($ScontoMaggiorazione['Tipo'] == "MG") {
-                        $ImponibileImporto = number_format($PrezzoTotale + $ImportoSconto, 2, '.', '');
+                        $ImponibileImporto = number_format($PrezzoTotale + $ImportoSconto, 3, '.', '');
                     }
 
                 } else {
@@ -722,7 +694,7 @@
 
                 }
 
-                $Linea['PrezzoTotale'] = number_format($ImponibileImporto, 2, '.', '');
+                $Linea['PrezzoTotale'] = number_format($ImponibileImporto, 3, '.', '');
 
                 $Linea['AliquotaIVA'] = number_format($AliquotaIVA, 2, '.', '');
 
@@ -740,7 +712,7 @@
 
             }
 
-            private function Totale() {
+            public function Totale() {
 
                 $Subtotale = $this->default['Imponibile'] + $this->default['Imposta'];
 
@@ -754,30 +726,25 @@
                 $Totale += $Bollo;
 
                 $Totale = number_format($Totale, 2, '.', '');
+
+                return $Totale;
+
+            }
+
+            public function DettaglioPagamento($ModalitaPagamento, $ImportoPagamento, $DataScadenzaPagamento = null, $Beneficiario = null, $IstitutoFinanziario = null, $IBAN = null) { 
+
+                $DettaglioPagamento = [];
+
+                if ($Beneficiario != null) { $DettaglioPagamento['Beneficiario'] = $Beneficiario; }
+
+                $DettaglioPagamento['ModalitaPagamento'] = strtoupper($ModalitaPagamento); 
+
+                if ($DataScadenzaPagamento != null) { $DettaglioPagamento['DataScadenzaPagamento'] = $DataScadenzaPagamento; }
+                if ($IstitutoFinanziario != null) { $DettaglioPagamento['IstitutoFinanziario'] = $IstitutoFinanziario; }
+                if ($IBAN != null) { $DettaglioPagamento['IBAN'] = $IBAN; }
+                if ($ImportoPagamento != null) { $DettaglioPagamento['ImportoPagamento'] = number_format($ImportoPagamento, 2, '.', ''); }
                 
-                $this->body['DatiPagamento']['DettaglioPagamento'] = [];
-
-                if (isset($this->default['Beneficiario'])) {
-                    $this->body['DatiPagamento']['DettaglioPagamento']['Beneficiario'] = $this->default['Beneficiario'];
-                }
-
-                $this->body['DatiPagamento']['DettaglioPagamento']['ModalitaPagamento'] = $this->default['ModalitaPagamento'];
-
-                if (isset($this->default['DataScadenzaPagamento'])) {
-
-                    $this->body['DatiPagamento']['DettaglioPagamento']['DataScadenzaPagamento'] = $this->default['DataScadenzaPagamento'];
-
-                }
-
-                $this->body['DatiPagamento']['DettaglioPagamento']['ImportoPagamento'] = $Totale;
-
-                if (isset($this->default['IstitutoFinanziario'])) {
-                    $this->body['DatiPagamento']['DettaglioPagamento']['IstitutoFinanziario'] = $this->default['IstitutoFinanziario'];
-                }
-
-                if (isset($this->default['IBAN'])) {
-                    $this->body['DatiPagamento']['DettaglioPagamento']['IBAN'] = $this->default['IBAN'];
-                }
+                array_push($this->body['DatiPagamento']['DettaglioPagamento']['child'], $DettaglioPagamento);
 
             }
 
