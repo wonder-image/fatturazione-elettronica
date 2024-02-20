@@ -655,7 +655,7 @@
 
             }
 
-            public function Linea($RiferimentoAmministrazione, $Descrizione, $Quantita, $PrezzoUnitario, $AliquotaIVA, $Natura, $ScontoMaggiorazione = []) {
+            public function Linea($RiferimentoAmministrazione, $Descrizione, $Quantita, $PrezzoUnitario, $AliquotaIVA, $Natura = "", $ScontoMaggiorazione = []) {
 
                 $Linea = [];
 
